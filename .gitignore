@@ -6,3 +6,6 @@ db.sqlite3
 staticfiles/
 media/profile_photos/*
 !media/profile_photos/.gitkeep
+test_*.py
+*_test.py
+scratch.py
