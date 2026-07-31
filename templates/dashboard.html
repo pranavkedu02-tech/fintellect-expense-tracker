@@ -1,0 +1,124 @@
+{% extends "base.html" %}
+{% block title %}Fintellect — AI-Powered Expense Tracker{% endblock %}
+{% block content %}
+    
+    <h1>Dashboard</h1>
+
+    {% if pending_split_count > 0 %}
+    <a href="{% url 'split_requests' %}" class="split-alert">
+        🤝 You have {{ pending_split_count }} pending split request{{ pending_split_count|pluralize }} —
+        <span style="text-decoration: underline;">review now</span>
+    </a>
+    {% endif %}
+
+    <p>Welcome, {{ user.username }}. Here's your spending summary.</p>
+    {% if ai_insight %}
+    <div class="ai-insight-card">
+        <div class="ai-insight-icon">✨</div>
+        <div>
+            <div class="ai-insight-label">AI Insight</div>
+            <p class="ai-insight-text">{{ ai_insight }}</p>
+        </div>
+    </div>
+    {% endif %}
+
+    <div class="stat-row">
+        <div class="stat-card">
+            <div class="stat-label">Total Spent</div>
+            <div class="stat-value">₹{{ total_spent }}</div>
+        </div>
+        {% if model_accuracy %}
+        <div class="stat-card">
+            <div class="stat-label">ML Model Accuracy</div>
+            <div class="stat-value">{{ model_accuracy }}%</div>
+        </div>
+        {% endif %}
+
+        <div class="stat-card budget-card">
+            <div class="stat-label">Monthly Budget</div>
+            {% if monthly_budget %}
+                <div class="stat-value">₹{{ monthly_budget }}</div>
+                <div class="progress-bar">
+                    <div class="progress-fill progress-{{ budget_status }}" style="width: {{ budget_percent }}%;"></div>
+                </div>
+                <div class="progress-label">{{ budget_percent }}% used</div>
+                {% if budget_status == "danger" %}
+                    <div class="alert-warning" style="margin-top:10px;">⚠️ You've exceeded your budget!</div>
+                {% elif budget_status == "warning" %}
+                    <div class="alert-warning" style="margin-top:10px;">You're close to your budget limit.</div>
+                {% endif %}
+                <a href="{% url 'set_budget' %}" class="btn btn-outline btn-sm" style="margin-top:10px;">Edit Budget</a>
+            {% else %}
+                <p class="text-dim" style="margin: 10px 0;">No budget set yet.</p>
+                <a href="{% url 'set_budget' %}" class="btn btn-sm">Set a Budget</a>
+            {% endif %}
+        </div>
+    </div>
+
+    {% if category_labels %}
+        <div class="chart-row">
+            <div class="chart-card">
+                <h3>Spending by Category</h3>
+                <canvas id="categoryChart"></canvas>
+            </div>
+            <div class="chart-card">
+                <h3>Spending by Date</h3>
+                <canvas id="monthChart"></canvas>
+            </div>
+        </div>
+    {% else %}
+        <p>No expenses yet. <a href="{% url 'add_expense' %}">Add one to see your dashboard come to life.</a></p>
+    {% endif %}
+{% endblock %}
+
+{% block extra_js %}
+{% if category_labels %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+<script>
+    const labels = {{ category_labels|safe }};
+    const values = {{ category_values|safe }};
+    const monthLabels = {{ month_labels|safe }};
+    const monthValues = {{ month_values|safe }};
+
+    new Chart(document.getElementById('categoryChart'), {
+        type: 'doughnut',
+        data: {
+            labels: labels,
+            datasets: [{
+                data: values,
+                backgroundColor: ['#34d399', '#f5a623', '#4fb0e8', '#8b7cf6', '#f2545b', '#e05fb0'],
+                borderColor: '#171a21',
+                borderWidth: 3,
+            }]
+        },
+        options: {
+            plugins: {
+                legend: {
+                    labels: { color: '#e8eaf0' }
+                }
+            }
+        }
+    });
+
+    new Chart(document.getElementById('monthChart'), {
+        type: 'bar',
+        data: {
+            labels: monthLabels,
+            datasets: [{
+                label: 'Spent',
+                data: monthValues,
+                backgroundColor: '#34d399',
+                borderRadius: 6,
+            }]
+        },
+        options: {
+            plugins: { legend: { display: false } },
+            scales: {
+                x: { ticks: { color: '#8b93a7' }, grid: { display: false } },
+                y: { ticks: { color: '#8b93a7' }, grid: { color: '#2a2f3a' } }
+            }
+        }
+    });
+</script>
+{% endif %}
+{% endblock %}

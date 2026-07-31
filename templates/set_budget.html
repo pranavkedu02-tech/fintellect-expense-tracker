@@ -1,0 +1,27 @@
+﻿{% extends "base.html" %}
+{% block title %}Set Budget — Fintellect{% endblock %}
+{% block content %}
+    <h1>Set Monthly Budget</h1>
+
+    {% if ai_suggested_budget %}
+    <div class="ai-insight-card">
+        <div class="ai-insight-icon">✨</div>
+        <div>
+            <div class="ai-insight-label">AI Suggestion</div>
+            <p class="ai-insight-text">
+                Based on your spending history, a realistic monthly budget might be around
+                <strong>₹{{ ai_suggested_budget|floatformat:0 }}</strong>.
+            </p>
+        </div>
+    </div>
+    {% endif %}
+
+    <div class="form-card">
+        <form method="POST">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button type="submit" class="btn">Save Budget</button>
+        </form>
+        <p><a href="{% url 'dashboard' %}">Cancel</a></p>
+    </div>
+{% endblock %}

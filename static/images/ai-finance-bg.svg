@@ -1,0 +1,121 @@
+<svg width="1920" height="1080" viewBox="0 0 1920 1080" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <radialGradient id="glow1" cx="15%" cy="10%" r="55%">
+      <stop offset="0%" stop-color="#34d399" stop-opacity="0.22"/>
+      <stop offset="100%" stop-color="#34d399" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="glow2" cx="88%" cy="15%" r="50%">
+      <stop offset="0%" stop-color="#22d3ee" stop-opacity="0.20"/>
+      <stop offset="100%" stop-color="#22d3ee" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="glow3" cx="50%" cy="95%" r="55%">
+      <stop offset="0%" stop-color="#a78bfa" stop-opacity="0.14"/>
+      <stop offset="100%" stop-color="#a78bfa" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="lineGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#34d399" stop-opacity="0.5"/>
+      <stop offset="100%" stop-color="#22d3ee" stop-opacity="0.5"/>
+    </linearGradient>
+    <filter id="softBlur"><feGaussianBlur stdDeviation="0.4"/></filter>
+  </defs>
+
+  <rect width="1920" height="1080" fill="#06070d"/>
+  <rect width="1920" height="1080" fill="url(#glow1)"/>
+  <rect width="1920" height="1080" fill="url(#glow2)"/>
+  <rect width="1920" height="1080" fill="url(#glow3)"/>
+
+  <!-- Neural network node-line mesh (AI motif) -->
+  <g stroke="url(#lineGrad)" stroke-width="1" opacity="0.55" filter="url(#softBlur)">
+    <line x1="120" y1="140" x2="340" y2="260"/>
+    <line x1="340" y1="260" x2="300" y2="460"/>
+    <line x1="340" y1="260" x2="560" y2="200"/>
+    <line x1="560" y1="200" x2="720" y2="360"/>
+    <line x1="300" y1="460" x2="520" y2="520"/>
+    <line x1="520" y1="520" x2="720" y2="360"/>
+    <line x1="720" y1="360" x2="900" y2="180"/>
+    <line x1="900" y1="180" x2="1080" y2="300"/>
+    <line x1="520" y1="520" x2="640" y2="700"/>
+    <line x1="640" y1="700" x2="480" y2="820"/>
+    <line x1="120" y1="140" x2="80" y2="380"/>
+    <line x1="80" y1="380" x2="300" y2="460"/>
+
+    <line x1="1450" y1="120" x2="1620" y2="230"/>
+    <line x1="1620" y1="230" x2="1560" y2="420"/>
+    <line x1="1620" y1="230" x2="1800" y2="180"/>
+    <line x1="1560" y1="420" x2="1720" y2="500"/>
+    <line x1="1720" y1="500" x2="1840" y2="380"/>
+    <line x1="1840" y1="380" x2="1800" y2="180"/>
+    <line x1="1560" y1="420" x2="1400" y2="500"/>
+    <line x1="1400" y1="500" x2="1450" y2="120"/>
+    <line x1="1720" y1="500" x2="1680" y2="700"/>
+    <line x1="1680" y1="700" x2="1500" y2="780"/>
+
+    <line x1="900" y1="700" x2="1080" y2="800"/>
+    <line x1="1080" y1="800" x2="1050" y2="950"/>
+    <line x1="1080" y1="800" x2="1260" y2="760"/>
+    <line x1="1260" y1="760" x2="1300" y2="920"/>
+    <line x1="900" y1="700" x2="760" y2="820"/>
+    <line x1="760" y1="820" x2="880" y2="960"/>
+  </g>
+
+  <!-- Nodes -->
+  <g fill="#34d399" opacity="0.85">
+    <circle cx="120" cy="140" r="3.2"/>
+    <circle cx="340" cy="260" r="4"/>
+    <circle cx="560" cy="200" r="3"/>
+    <circle cx="300" cy="460" r="3.6"/>
+    <circle cx="520" cy="520" r="3.2"/>
+    <circle cx="720" cy="360" r="4.2"/>
+    <circle cx="900" cy="180" r="3"/>
+    <circle cx="1080" cy="300" r="3.4"/>
+    <circle cx="80" cy="380" r="2.6"/>
+    <circle cx="640" cy="700" r="3"/>
+    <circle cx="480" cy="820" r="2.6"/>
+  </g>
+  <g fill="#22d3ee" opacity="0.8">
+    <circle cx="1450" cy="120" r="3.2"/>
+    <circle cx="1620" cy="230" r="4"/>
+    <circle cx="1800" cy="180" r="3"/>
+    <circle cx="1560" cy="420" r="3.6"/>
+    <circle cx="1720" cy="500" r="3.2"/>
+    <circle cx="1840" cy="380" r="3"/>
+    <circle cx="1400" cy="500" r="2.8"/>
+    <circle cx="1680" cy="700" r="3"/>
+    <circle cx="1500" cy="780" r="2.6"/>
+  </g>
+  <g fill="#a78bfa" opacity="0.75">
+    <circle cx="900" cy="700" r="3.2"/>
+    <circle cx="1080" cy="800" r="3.8"/>
+    <circle cx="1050" cy="950" r="2.8"/>
+    <circle cx="1260" cy="760" r="3.2"/>
+    <circle cx="1300" cy="920" r="2.8"/>
+    <circle cx="760" cy="820" r="3"/>
+    <circle cx="880" cy="960" r="2.6"/>
+  </g>
+
+  <!-- Faint candlestick / finance chart motif, bottom band -->
+  <g opacity="0.16" fill="none" stroke="#34d399" stroke-width="2">
+    <polyline points="0,980 60,940 120,960 180,900 240,930 300,860 360,890 420,820 480,850 540,780 600,810 660,740 720,770 780,700 840,730 900,660 960,690 1020,630 1080,660 1140,600 1200,630 1260,570 1320,600 1380,540 1440,570 1500,520 1560,550 1620,500 1680,530 1740,490 1800,510 1860,470 1920,500" stroke-linecap="round"/>
+  </g>
+
+  <!-- Fine grid, very subtle -->
+  <g stroke="#ffffff" stroke-opacity="0.025">
+    <path d="M0 90H1920 M0 180H1920 M0 270H1920 M0 360H1920 M0 450H1920 M0 540H1920 M0 630H1920 M0 720H1920 M0 810H1920 M0 900H1920 M0 990H1920"/>
+    <path d="M120 0V1080 M240 0V1080 M360 0V1080 M480 0V1080 M600 0V1080 M720 0V1080 M840 0V1080 M960 0V1080 M1080 0V1080 M1200 0V1080 M1320 0V1080 M1440 0V1080 M1560 0V1080 M1680 0V1080 M1800 0V1080"/>
+  </g>
+
+  <!-- Faint currency glyphs -->
+  <g fill="#ffffff" fill-opacity="0.035" font-family="Arial, sans-serif" font-weight="700">
+    <text x="150" y="620" font-size="140">₹</text>
+    <text x="1680" y="300" font-size="120">$</text>
+    <text x="950" y="1000" font-size="100">₹</text>
+    <text x="1750" y="900" font-size="90">€</text>
+  </g>
+
+  <!-- Vignette for text readability -->
+  <rect width="1920" height="1080" fill="url(#vignette)"/>
+  <radialGradient id="vignette" cx="50%" cy="35%" r="75%">
+    <stop offset="0%" stop-color="#06070d" stop-opacity="0"/>
+    <stop offset="100%" stop-color="#06070d" stop-opacity="0.55"/>
+  </radialGradient>
+</svg>

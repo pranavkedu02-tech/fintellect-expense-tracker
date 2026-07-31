@@ -1,0 +1,86 @@
+{% extends "base.html" %}
+{% block title %}Split an Expense — Fintellect{% endblock %}
+
+{% block content %}
+    <h1>🤝 Split an Expense</h1>
+    <p class="text-dim">Enter the total amount — it'll be split 50/50 with your friend.</p>
+
+    <div class="form-card">
+        <form method="POST">
+            {% csrf_token %}
+
+            <label class="form-label">Friend's Username</label>
+            <input
+                type="text"
+                name="friend_username"
+                id="friend-input"
+                class="search-input"
+                placeholder="Start typing a username..."
+                autocomplete="off"
+                required
+            >
+            <div id="friend-suggestions" class="suggestion-box"></div>
+
+            <label class="form-label" style="margin-top: 16px;">Title</label>
+            {{ form.title }}
+
+            <label class="form-label">Total Amount (₹)</label>
+            {{ form.total_amount }}
+
+            <label class="form-label">Category</label>
+            {{ form.category }}
+
+            <label class="form-label">Date</label>
+            {{ form.date }}
+
+            <button type="submit" class="btn" style="margin-top: 20px;">Send Split Request</button>
+        </form>
+        <p><a href="{% url 'split_requests' %}">View my split requests</a></p>
+    </div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    const friendInput = document.getElementById('friend-input');
+    const suggestionsBox = document.getElementById('friend-suggestions');
+    let debounceTimer;
+
+    friendInput.addEventListener('input', () => {
+        clearTimeout(debounceTimer);
+        const query = friendInput.value.trim();
+
+        if (query.length < 2) {
+            suggestionsBox.innerHTML = '';
+            return;
+        }
+
+        debounceTimer = setTimeout(() => {
+            fetch(`/api/search-users/?q=${encodeURIComponent(query)}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.users.length === 0) {
+                        suggestionsBox.innerHTML = '';
+                        return;
+                    }
+                    suggestionsBox.innerHTML = data.users.map(username =>
+                        `<div class="suggestion-item" data-username="${username}">${username}</div>`
+                    ).join('');
+
+                    document.querySelectorAll('.suggestion-item').forEach(item => {
+                        item.addEventListener('click', () => {
+                            friendInput.value = item.dataset.username;
+                            suggestionsBox.innerHTML = '';
+                        });
+                    });
+                });
+        }, 300);
+    });
+
+    // Hide suggestions when clicking elsewhere
+    document.addEventListener('click', (e) => {
+        if (e.target !== friendInput) {
+            suggestionsBox.innerHTML = '';
+        }
+    });
+</script>
+{% endblock %}

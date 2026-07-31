@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block title %}Recurring Expenses — Fintellect{% endblock %}
+{% block content %}
+    <h1>🔁 Recurring Expenses</h1>
+    <p class="text-dim">Expenses you've marked as recurring. Click "Log for this month" to add this month's occurrence.</p>
+
+    {% if recurring_expenses %}
+        {% for e in recurring_expenses %}
+        <div class="receipt-row">
+            <div>
+                <div class="receipt-title">{{ e.title }}</div>
+                <div class="text-dim" style="font-size: 0.85rem;">
+                    <span class="badge">{{ e.category }}</span> ₹{{ e.amount }} / month
+                </div>
+            </div>
+            <form method="POST" action="{% url 'log_recurring' e.id %}">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-sm">Log for this month</button>
+            </form>
+        </div>
+        {% endfor %}
+    {% else %}
+        <div class="empty-state">
+            <p>No recurring expenses yet. Mark an expense as recurring when adding or editing it.</p>
+            <a href="{% url 'add_expense' %}" class="btn">Add an Expense</a>
+        </div>
+    {% endif %}
+{% endblock %}

@@ -1,0 +1,146 @@
+{% extends "base.html" %}
+{% block title %}My Expenses — Fintellect{% endblock %}
+
+{% block content %}
+    <div class="section-head">
+        <h1>My Expenses</h1>
+        <div>
+            <a href="{% url 'export_csv' %}" class="btn btn-outline">⬇ CSV</a>
+            <a href="{% url 'export_pdf' %}" class="btn btn-outline">⬇ PDF</a>
+            <a href="{% url 'add_expense' %}" class="btn">+ Add New Expense</a>
+        </div>
+    </div>
+
+    <form method="GET" class="search-row" id="search-form">
+        <input
+            type="text"
+            name="q"
+            id="search-input"
+            value="{{ search_query }}"
+            placeholder="🔍 Search expenses by title..."
+            class="search-input"
+            autocomplete="off"
+        >
+        {% if selected_category %}
+            <input type="hidden" name="category" id="category-input" value="{{ selected_category }}">
+        {% else %}
+            <input type="hidden" name="category" id="category-input" value="">
+        {% endif %}
+    </form>
+
+    <div class="sort-row">
+        <label for="sort-select" class="sort-label">Sort by:</label>
+        <select id="sort-select" class="sort-select">
+            <option value="date_desc" {% if sort_by == "date_desc" %}selected{% endif %}>Newest First</option>
+            <option value="date_asc" {% if sort_by == "date_asc" %}selected{% endif %}>Oldest First</option>
+            <option value="amount_desc" {% if sort_by == "amount_desc" %}selected{% endif %}>Highest Amount</option>
+            <option value="amount_asc" {% if sort_by == "amount_asc" %}selected{% endif %}>Lowest Amount</option>
+        </select>
+    </div>
+
+    <div class="filter-row" id="filter-chips">
+        <a href="#" data-category="" class="chip {% if not selected_category %}active{% endif %}">All</a>
+        {% for cat in categories %}
+            <a href="#" data-category="{{ cat }}" class="chip {% if selected_category == cat %}active{% endif %}">{{ cat }}</a>
+        {% endfor %}
+    </div>
+
+    <div id="expense-results">
+        {% include "expense_table_partial.html" %}
+    </div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    const searchInput = document.getElementById('search-input');
+    const categoryInput = document.getElementById('category-input');
+    const resultsDiv = document.getElementById('expense-results');
+    const chips = document.querySelectorAll('#filter-chips .chip');
+    const sortSelect = document.getElementById('sort-select');
+
+    let debounceTimer;
+
+    function runSearch() {
+        const query = searchInput.value.trim();
+        const category = categoryInput.value;
+        const sort = sortSelect.value;
+
+        const params = new URLSearchParams();
+        if (query) params.set('q', query);
+        if (category) params.set('category', category);
+        params.set('sort', sort);
+
+        fetch(`/api/search-expenses/?${params.toString()}`)
+            .then(response => response.json())
+            .then(data => {
+                renderResults(data.expenses);
+            });
+    }
+
+    function renderResults(expenses) {
+        if (expenses.length === 0) {
+            resultsDiv.innerHTML = `
+                <div class="empty-state">
+                    <p>No matching expenses found.</p>
+                </div>
+            `;
+            return;
+        }
+
+        let rows = '';
+        expenses.forEach(e => {
+            rows += `
+                <tr>
+                    <td>${e.title}</td>
+                    <td>₹${e.amount}</td>
+                    <td><span class="badge">${e.category}</span></td>
+                    <td>${e.date}</td>
+                    <td>
+                        <a href="/expenses/${e.id}/edit/">Edit</a> |
+                        <a href="/expenses/${e.id}/delete/">Delete</a>
+                    </td>
+                </tr>
+            `;
+        });
+
+        resultsDiv.innerHTML = `
+            <table class="expense-table">
+                <tr>
+                    <th>Title</th>
+                    <th>Amount</th>
+                    <th>Category</th>
+                    <th>Date</th>
+                    <th>Actions</th>
+                </tr>
+                ${rows}
+            </table>
+        `;
+    }
+
+    // ---- Live search as you type (debounced) ----
+    searchInput.addEventListener('input', () => {
+        clearTimeout(debounceTimer);
+        debounceTimer = setTimeout(runSearch, 350);
+    });
+
+    // ---- Sort dropdown change (no page reload) ----
+    sortSelect.addEventListener('change', runSearch);
+
+    // ---- Category chip clicks (no page reload) ----
+    chips.forEach(chip => {
+        chip.addEventListener('click', (e) => {
+            e.preventDefault();
+            chips.forEach(c => c.classList.remove('active'));
+            chip.classList.add('active');
+            categoryInput.value = chip.dataset.category;
+            runSearch();
+        });
+    });
+
+    // Prevent full page reload if someone hits Enter in the search box
+    document.getElementById('search-form').addEventListener('submit', (e) => {
+        e.preventDefault();
+        runSearch();
+    });
+</script>
+{% endblock %}

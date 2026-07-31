@@ -1,0 +1,118 @@
+{% extends "base.html" %}
+{% block title %}Add Expense — Fintellect{% endblock %}
+{% block content %}
+    <div class="form-card" style="max-width: 480px;">
+        <div class="ai-parse-box">
+            <label class="ai-parse-label">✨ Describe it in plain English</label>
+            <div class="ai-parse-row">
+                <input
+                    type="text"
+                    id="nl-input"
+                    class="search-input"
+                    placeholder='e.g. "Spent 450 on groceries yesterday"'
+                    autocomplete="off"
+                >
+                <button type="button" id="nl-parse-btn" class="btn btn-sm">Parse</button>
+            </div>
+            <div id="nl-status" class="nl-status"></div>
+        </div>
+
+        <h1>Add an Expense</h1>
+        <form method="POST" id="expense-form">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button type="submit" class="btn">Save Expense</button>
+        </form>
+        <p><a href="{% url 'home' %}">Back to home</a></p>
+    </div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    function getCookie(name) {
+        const value = `; ${document.cookie}`;
+        const parts = value.split(`; ${name}=`);
+        if (parts.length === 2) return parts.pop().split(';').shift();
+    }
+    const csrftoken = getCookie('csrftoken');
+
+    const nlInput = document.getElementById('nl-input');
+    const nlParseBtn = document.getElementById('nl-parse-btn');
+    const nlStatus = document.getElementById('nl-status');
+    const titleInput = document.getElementById('id_title');
+    let categoryDebounce;
+
+    nlParseBtn.addEventListener('click', () => {
+        const text = nlInput.value.trim();
+        if (!text) return;
+
+        nlParseBtn.disabled = true;
+        nlParseBtn.textContent = 'Parsing...';
+        nlStatus.textContent = '';
+        nlStatus.className = 'nl-status';
+
+        const formData = new FormData();
+        formData.append('text', text);
+
+        fetch('/api/parse-expense/', {
+            method: 'POST',
+            headers: { 'X-CSRFToken': csrftoken },
+            body: formData,
+        })
+            .then(response => response.json())
+            .then(data => {
+                nlParseBtn.disabled = false;
+                nlParseBtn.textContent = 'Parse';
+
+                if (data.error) {
+                    nlStatus.textContent = data.error;
+                    nlStatus.className = 'nl-status error';
+                    return;
+                }
+
+                // ---- Fill in the actual Django form fields ----
+                document.getElementById('id_title').value = data.title;
+                document.getElementById('id_amount').value = data.amount;
+                document.getElementById('id_category').value = data.category;
+                document.getElementById('id_date').value = data.date;
+
+                nlStatus.textContent = '✓ Filled in below — review and save.';
+                nlStatus.className = 'nl-status success';
+            })
+            .catch(() => {
+                nlParseBtn.disabled = false;
+                nlParseBtn.textContent = 'Parse';
+                nlStatus.textContent = 'Connection error. Please try again.';
+                nlStatus.className = 'nl-status error';
+            });
+    });
+
+    // Allow pressing Enter in the input to trigger parsing too
+    nlInput.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            nlParseBtn.click();
+        }
+    });
+    
+    // ---- Live ML category prediction as you type the title ----
+    if (titleInput) {
+        titleInput.addEventListener('input', () => {
+            clearTimeout(categoryDebounce);
+            categoryDebounce = setTimeout(() => {
+                const title = titleInput.value.trim();
+                if (title.length < 3) return;
+
+                fetch(`/api/predict-category/?title=${encodeURIComponent(title)}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.category) {
+                            const categorySelect = document.getElementById('id_category');
+                            categorySelect.value = data.category;
+                        }
+                    });
+            }, 500);
+        });
+    }
+</script>
+{% endblock %}

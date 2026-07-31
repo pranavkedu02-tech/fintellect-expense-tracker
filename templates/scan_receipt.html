@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% block title %}Scan Receipt — Fintellect{% endblock %}
+{% block content %}
+    <h1>Scan a Receipt</h1>
+    <p class="text-dim">Upload a photo of a receipt — we'll try to auto-detect the total amount.</p>
+
+    {% if not scanned %}
+        <div class="form-card">
+            <form method="POST" enctype="multipart/form-data">
+                {% csrf_token %}
+                {{ form.as_p }}
+                <button type="submit" class="btn">Scan Receipt</button>
+            </form>
+        </div>
+    {% else %}
+        <div class="form-card" style="max-width: 600px;">
+            <h3>What we read from your receipt:</h3>
+            <pre class="ocr-text">{{ extracted_text }}</pre>
+
+            {% if guessed_amount %}
+                <div class="alert-success">✓ Detected amount: ₹{{ guessed_amount }}</div>
+            {% else %}
+                <div class="alert-warning">Couldn't confidently detect an amount — please enter it manually below.</div>
+            {% endif %}
+
+            <h3>Review and save your expense:</h3>
+            <form method="POST" action="{% url 'add_expense' %}">
+                {% csrf_token %}
+                {{ expense_form.as_p }}
+                <button type="submit" class="btn">Save Expense</button>
+            </form>
+
+            <p><a href="{% url 'scan_receipt' %}">Scan a different receipt</a></p>
+        </div>
+    {% endif %}
+{% endblock %}

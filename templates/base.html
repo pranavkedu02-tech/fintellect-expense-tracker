@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Fintellect — AI-Powered Expense Tracker{% endblock %}</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
+<body>
+
+    <nav class="navbar">
+    <a href="{% url 'home' %}" class="brand">
+        <span class="brand-mark"></span>
+        <span class="brand-text-wrap">
+            <span class="brand-name">Fintellect</span>
+            <span class="brand-tagline">AI-Powered Expense Tracker</span>
+        </span>
+    </a>
+
+    {% if user.is_authenticated %}
+    <div class="menu-wrap">
+        <button type="button" class="menu-toggle" id="menu-toggle" aria-label="Open menu">
+            <span class="menu-toggle-bar"></span>
+            <span class="menu-toggle-bar"></span>
+            <span class="menu-toggle-bar"></span>
+        </button>
+
+        <div class="menu-panel" id="menu-panel">
+            <a href="{% url 'dashboard' %}" class="menu-item{% if request.path == '/dashboard/' %} active{% endif %}">
+                <span class="menu-item-icon">📊</span> Dashboard
+            </a>
+            <a href="{% url 'expense_list' %}" class="menu-item{% if request.path == '/expenses/' %} active{% endif %}">
+                <span class="menu-item-icon">🧾</span> My Expenses
+            </a>
+            <a href="{% url 'add_expense' %}" class="menu-item{% if request.path == '/add-expense/' %} active{% endif %}">
+                <span class="menu-item-icon">➕</span> Add Expense
+            </a>
+            <a href="{% url 'scan_receipt' %}" class="menu-item{% if request.path == '/scan-receipt/' %} active{% endif %}">
+                <span class="menu-item-icon">📷</span> Scan Receipt
+            </a>
+            <a href="{% url 'recurring_expenses' %}" class="menu-item{% if request.path == '/recurring/' %} active{% endif %}">
+                <span class="menu-item-icon">🔁</span> Recurring
+            </a>
+            <a href="{% url 'monthly_history' %}" class="menu-item{% if '/monthly-history/' in request.path %} active{% endif %}">
+                <span class="menu-item-icon">📅</span> Monthly History
+            </a>
+            <a href="{% url 'split_requests' %}" class="menu-item{% if '/split-requests/' in request.path or '/create-split/' in request.path %} active{% endif %}">
+                <span class="menu-item-icon">🤝</span> Split Expenses
+                {% if pending_split_count > 0 %}
+                    <span class="menu-badge">{{ pending_split_count }}</span>
+                {% endif %}
+            </a>
+            <a href="{% url 'ai_chat' %}" class="menu-item{% if request.path == '/ai-chat/' %} active{% endif %}">
+                <span class="menu-item-icon">💬</span> AI Assistant
+            </a>
+            <a href="{% url 'profile' %}" class="menu-item{% if request.path == '/profile/' %} active{% endif %}">
+                <span class="menu-item-icon">👤</span> Profile
+            </a>
+
+            <div class="menu-divider"></div>
+
+            <div class="menu-item menu-item-static">
+                <span class="menu-item-icon">👋</span> {{ user.username }}
+            </div>
+            <form method="POST" action="{% url 'logout' %}" class="menu-logout-form">
+                {% csrf_token %}
+                <button type="submit" class="menu-item menu-item-danger">
+                    <span class="menu-item-icon">🚪</span> Log Out
+                </button>
+            </form>
+        </div>
+    </div>
+    {% else %}
+    <div class="nav-links">
+        <a href="{% url 'login' %}">Log In</a>
+        <a href="{% url 'register' %}">Register</a>
+    </div>
+    {% endif %}
+</nav>
+
+    <main class="container">
+        {% if messages %}
+            <div class="toast-container" id="toast-container">
+                {% for message in messages %}
+                    <div class="toast toast-{{ message.tags }}">
+                        <span class="toast-icon">
+                            {% if message.tags == "success" %}✓
+                            {% elif message.tags == "warning" %}⚠
+                            {% elif message.tags == "error" %}✕
+                            {% else %}ℹ{% endif %}
+                        </span>
+                        <span class="toast-text">{{ message }}</span>
+                        <button type="button" class="toast-close" onclick="this.parentElement.remove()">&times;</button>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+
+        {% block content %}
+        {% endblock %}
+    </main>
+{% block extra_js %}{% endblock %}
+
+    <script>
+        // ---- Menu dropdown toggle ----
+        const menuToggle = document.getElementById('menu-toggle');
+        const menuPanel = document.getElementById('menu-panel');
+
+        if (menuToggle && menuPanel) {
+            menuToggle.addEventListener('click', (e) => {
+                e.stopPropagation();
+                menuPanel.classList.toggle('menu-panel-open');
+                menuToggle.classList.toggle('menu-toggle-active');
+            });
+
+            // Close the menu when clicking anywhere outside it
+            document.addEventListener('click', (e) => {
+                if (!menuPanel.contains(e.target) && !menuToggle.contains(e.target)) {
+                    menuPanel.classList.remove('menu-panel-open');
+                    menuToggle.classList.remove('menu-toggle-active');
+                }
+            });
+
+            // Close the menu automatically after clicking a link inside it
+            menuPanel.querySelectorAll('a, button').forEach(item => {
+                item.addEventListener('click', () => {
+                    menuPanel.classList.remove('menu-panel-open');
+                    menuToggle.classList.remove('menu-toggle-active');
+                });
+            });
+        }
+    </script>
+</body>
+</html>

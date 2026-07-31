@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block title %}Monthly History — Fintellect{% endblock %}
+
+{% block content %}
+    <h1>📅 Monthly History</h1>
+    <p class="text-dim">A breakdown of your spending by month, with an AI-generated summary for each.</p>
+
+    {% if months %}
+        {% for m in months %}
+        <a href="{% url 'month_detail' m.month %}" class="month-row">
+            <div>
+                <div class="month-row-title">{{ m.month }}</div>
+                <div class="month-row-meta">{{ m.count }} expense{{ m.count|pluralize }}</div>
+            </div>
+            <div class="month-row-total">₹{{ m.total|floatformat:2 }}</div>
+        </a>
+        {% endfor %}
+    {% else %}
+        <div class="empty-state">
+            <p>No expenses logged yet. <a href="{% url 'add_expense' %}">Add your first one.</a></p>
+        </div>
+    {% endif %}
+{% endblock %}

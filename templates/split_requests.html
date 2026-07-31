@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+{% block title %}Split Requests — Fintellect{% endblock %}
+
+{% block content %}
+    <div class="section-head">
+        <h1>🤝 Split Requests</h1>
+        <a href="{% url 'create_split' %}" class="btn">+ New Split</a>
+    </div>
+
+    <h2>Incoming Requests</h2>
+    {% if incoming %}
+        {% for r in incoming %}
+        <div class="receipt-row">
+            <div>
+                <div class="receipt-title">{{ r.title }}</div>
+                <div class="text-dim" style="font-size: 0.85rem;">
+                    From <strong>{{ r.from_username }}</strong> · Total ₹{{ r.total_amount }} ·
+                    Your share: <strong>₹{{ r.split_amount }}</strong> · {{ r.category }} · {{ r.date }}
+                </div>
+            </div>
+            <div style="display: flex; gap: 8px;">
+                <form method="POST" action="{% url 'respond_split' r.id 'accept' %}">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-sm">Accept</button>
+                </form>
+                <form method="POST" action="{% url 'respond_split' r.id 'decline' %}">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-outline btn-sm">Decline</button>
+                </form>
+            </div>
+        </div>
+        {% endfor %}
+    {% else %}
+        <p class="text-dim">No pending requests.</p>
+    {% endif %}
+
+    <h2 style="margin-top: 28px;">Requests You've Sent</h2>
+    {% if outgoing %}
+        <table class="expense-table">
+            <tr>
+                <th>Title</th>
+                <th>To</th>
+                <th>Your Share</th>
+                <th>Status</th>
+            </tr>
+            {% for r in outgoing %}
+            <tr>
+                <td>{{ r.title }}</td>
+                <td>{{ r.to_username }}</td>
+                <td>₹{{ r.split_amount }}</td>
+                <td>
+                    {% if r.status == "pending" %}<span class="badge">⏳ Pending</span>
+                    {% elif r.status == "accepted" %}<span class="badge" style="color: var(--accent);">✓ Accepted</span>
+                    {% else %}<span class="badge" style="color: var(--danger);">✕ Declined</span>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </table>
+    {% else %}
+        <p class="text-dim">You haven't sent any split requests yet.</p>
+    {% endif %}
+{% endblock %}

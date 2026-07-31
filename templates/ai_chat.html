@@ -1,0 +1,103 @@
+{% extends "base.html" %}
+{% block title %}AI Assistant — Fintellect{% endblock %}
+{% block content %}
+    <h1>💬 Ask About Your Spending</h1>
+    <p class="text-dim">Ask questions like "How much did I spend on food?" or "What was my biggest expense this month?"</p>
+
+    <div class="chat-window" id="chat-window">
+        <div class="chat-message ai">
+            <div class="chat-bubble ai-bubble">
+                Hi! I can answer questions about your spending. Try asking me something.
+            </div>
+        </div>
+    </div>
+
+    <form id="chat-form" class="chat-input-row">
+        <input
+            type="text"
+            id="chat-input"
+            placeholder="Ask a question about your expenses..."
+            autocomplete="off"
+            class="search-input"
+        >
+        <button type="submit" class="btn" id="chat-send-btn">Send</button>
+    </form>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    const chatWindow = document.getElementById('chat-window');
+    const chatForm = document.getElementById('chat-form');
+    const chatInput = document.getElementById('chat-input');
+    const sendBtn = document.getElementById('chat-send-btn');
+
+    function getCookie(name) {
+        const value = `; ${document.cookie}`;
+        const parts = value.split(`; ${name}=`);
+        if (parts.length === 2) return parts.pop().split(';').shift();
+    }
+    const csrftoken = getCookie('csrftoken');
+
+    function addMessage(text, sender) {
+        const messageDiv = document.createElement('div');
+        messageDiv.className = `chat-message ${sender}`;
+
+        const bubble = document.createElement('div');
+        bubble.className = sender === 'user' ? 'chat-bubble user-bubble' : 'chat-bubble ai-bubble';
+        bubble.textContent = text;
+
+        messageDiv.appendChild(bubble);
+        chatWindow.appendChild(messageDiv);
+        chatWindow.scrollTop = chatWindow.scrollHeight;
+    }
+
+    function addTypingIndicator() {
+        const div = document.createElement('div');
+        div.className = 'chat-message ai';
+        div.id = 'typing-indicator';
+        div.innerHTML = `<div class="chat-bubble ai-bubble typing">●●●</div>`;
+        chatWindow.appendChild(div);
+        chatWindow.scrollTop = chatWindow.scrollHeight;
+    }
+
+    function removeTypingIndicator() {
+        const el = document.getElementById('typing-indicator');
+        if (el) el.remove();
+    }
+
+    chatForm.addEventListener('submit', function (e) {
+        e.preventDefault();
+        const question = chatInput.value.trim();
+        if (!question) return;
+
+        addMessage(question, 'user');
+        chatInput.value = '';
+        sendBtn.disabled = true;
+        addTypingIndicator();
+
+        const formData = new FormData();
+        formData.append('question', question);
+
+        fetch('/api/ai-chat/', {
+            method: 'POST',
+            headers: { 'X-CSRFToken': csrftoken },
+            body: formData,
+        })
+            .then(response => response.json())
+            .then(data => {
+                removeTypingIndicator();
+                if (data.answer) {
+                    addMessage(data.answer, 'ai');
+                } else {
+                    addMessage(data.error || "Something went wrong.", 'ai');
+                }
+                sendBtn.disabled = false;
+            })
+            .catch(() => {
+                removeTypingIndicator();
+                addMessage("Connection error. Please try again.", 'ai');
+                sendBtn.disabled = false;
+            });
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block title %}Log Recurring Expense — Expense Tracker{% endblock %}
+
+{% block content %}
+    <h1>Log This Month's Expense?</h1>
+    <div class="form-card">
+        <p><strong>{{ expense.title }}</strong> — ₹{{ expense.amount }} ({{ expense.category }})</p>
+        <p class="text-dim">This will add a new expense dated today, using these details.</p>
+        <form method="POST">
+            {% csrf_token %}
+            <button type="submit" class="btn">Confirm & Log</button>
+        </form>
+        <p><a href="{% url 'recurring_expenses' %}">Cancel</a></p>
+    </div>
+{% endblock %}

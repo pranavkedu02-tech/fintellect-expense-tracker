@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block title %}Log In — Fintellect{% endblock %}
+{% block content %}
+    <div class="auth-page">
+        <div class="auth-card">
+            <div class="auth-eyebrow">Welcome back</div>
+            <h1>Log In</h1>
+            <p class="text-dim" style="margin-top: -4px; margin-bottom: 18px;">
+                Enter your credentials to access your dashboard.
+            </p>
+
+            <form method="POST">
+                {% csrf_token %}
+                {{ form.as_p }}
+                <button type="submit" class="btn btn-block">Log In</button>
+            </form>
+
+            <p class="auth-footer">
+                Don't have an account? <a href="{% url 'register' %}">Register here</a>
+            </p>
+        </div>
+    </div>
+{% endblock %}

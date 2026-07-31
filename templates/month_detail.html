@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+{% block title %}{{ month_str }} — Fintellect{% endblock %}
+
+{% block content %}
+    <p><a href="{% url 'monthly_history' %}">&larr; Back to Monthly History</a></p>
+    <h1>{{ month_str }}</h1>
+
+    {% if ai_summary %}
+    <div class="ai-insight-card">
+        <div class="ai-insight-icon">✨</div>
+        <div>
+            <div class="ai-insight-label">AI Summary</div>
+            <p class="ai-insight-text">{{ ai_summary }}</p>
+        </div>
+    </div>
+    {% endif %}
+
+    <div class="stat-row">
+        <div class="stat-card">
+            <div class="stat-label">Total Spent</div>
+            <div class="stat-value">₹{{ total|floatformat:2 }}</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-label">Expenses Logged</div>
+            <div class="stat-value">{{ expenses|length }}</div>
+        </div>
+    </div>
+
+    {% if category_totals %}
+    <div class="chip-row-static">
+        {% for c in category_totals %}
+            <span class="badge">{{ c.category }}: ₹{{ c.total|floatformat:2 }}</span>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <h2 style="margin-top: 24px;">Expenses</h2>
+    {% if expenses %}
+        <table class="expense-table">
+            <tr>
+                <th>Title</th>
+                <th>Amount</th>
+                <th>Category</th>
+                <th>Date</th>
+            </tr>
+            {% for e in expenses %}
+            <tr>
+                <td>{{ e.title }}</td>
+                <td>₹{{ e.amount }}</td>
+                <td><span class="badge">{{ e.category }}</span></td>
+                <td>{{ e.date }}</td>
+            </tr>
+            {% endfor %}
+        </table>
+    {% else %}
+        <p class="text-dim">No expenses found for this month.</p>
+    {% endif %}
+{% endblock %}

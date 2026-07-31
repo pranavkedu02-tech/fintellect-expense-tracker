@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block title %}Edit Profile — Fintellect{% endblock %}
+{% block content %}
+    <h1>Edit Profile</h1>
+
+    <div class="form-card">
+        {% if profile_photo %}
+            <img src="/media/{{ profile_photo }}" alt="Current photo" class="current-photo">
+        {% endif %}
+
+        <form method="POST" enctype="multipart/form-data">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button type="submit" class="btn">Save Changes</button>
+        </form>
+        <p><a href="{% url 'profile' %}">Cancel</a></p>
+    </div>
+{% endblock %}
