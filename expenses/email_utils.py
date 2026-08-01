@@ -29,8 +29,8 @@ def send_email(to_email, subject, html_body):
     message.attach(MIMEText(html_body, "html"))
 
     try:
-        with smtplib.SMTP(SMTP_SERVER, SMTP_PORT) as server:
-            server.starttls()  # upgrade the connection to an encrypted one
+        with smtplib.SMTP(SMTP_SERVER, SMTP_PORT, timeout=10) as server:
+            server.starttls()
             server.login(settings.EMAIL_HOST_USER, settings.EMAIL_HOST_PASSWORD)
             server.sendmail(settings.EMAIL_HOST_USER, to_email, message.as_string())
         return True
