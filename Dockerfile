@@ -1,4 +1,4 @@
-FROM python:3.12-slim
+﻿FROM python:3.12-slim
 
 # Install system-level dependencies: Tesseract OCR, plus build tools
 # needed to compile some Python packages (e.g. reportlab, Pillow)
@@ -21,4 +21,4 @@ RUN python manage.py collectstatic --noinput
 
 EXPOSE 8000
 
-CMD gunicorn expense_tracker.wsgi:application --bind 0.0.0.0:$PORT
+CMD python manage.py migrate --noinput && gunicorn expense_tracker.wsgi:application --bind 0.0.0.0:$PORT
