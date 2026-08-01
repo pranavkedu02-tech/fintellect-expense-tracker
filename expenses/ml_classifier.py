@@ -15,6 +15,11 @@ from sklearn.metrics import accuracy_score
 
 from .db import expenses_collection
 
+# ---- Simple in-memory cache for the trained model ----
+# Avoids retraining from scratch on every single request, which was
+# causing memory pressure on constrained hosting environments.
+_model_cache = {"vectorizer": None, "model": None, "trained_for_user": None}
+
 # ---- Seed dataset: ensures the model works even for brand-new users ----
 SEED_DATA = [
     # ---- Food ----
@@ -168,21 +173,29 @@ def _get_training_data(user_id):
 
 def predict_category(user_id, title):
     """
-    Trains a fresh Naive Bayes model on this user's data (+ seed data),
-    then predicts the category for the given title.
-    Returns the predicted category string, or None if prediction fails.
+    Uses a cached, trained Naive Bayes model to predict the category
+    for the given title. Retrains only once per user per app process
+    (not on every single request), to reduce memory/CPU pressure.
     """
     if not title or not title.strip():
         return None
 
-    titles, categories = _get_training_data(user_id)
-
     try:
-        vectorizer = TfidfVectorizer()
-        X = vectorizer.fit_transform(titles)
+        # Reuse the cached model if it was already trained for this user
+        if _model_cache["trained_for_user"] != user_id:
+            titles, categories = _get_training_data(user_id)
+            vectorizer = TfidfVectorizer()
+            X = vectorizer.fit_transform(titles)
 
-        model = MultinomialNB()
-        model.fit(X, categories)
+            model = MultinomialNB()
+            model.fit(X, categories)
+
+            _model_cache["vectorizer"] = vectorizer
+            _model_cache["model"] = model
+            _model_cache["trained_for_user"] = user_id
+
+        vectorizer = _model_cache["vectorizer"]
+        model = _model_cache["model"]
 
         title_vector = vectorizer.transform([title])
         prediction = model.predict(title_vector)
@@ -190,7 +203,6 @@ def predict_category(user_id, title):
         return prediction[0]
     except Exception:
         return None
-
 
 def evaluate_model_accuracy(user_id):
     """
