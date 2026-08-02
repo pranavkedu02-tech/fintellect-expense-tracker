@@ -1,13 +1,14 @@
 ﻿FROM python:3.12-slim
 
-# Install system-level dependencies: Tesseract OCR, plus build tools
-# needed to compile some Python packages (e.g. reportlab, Pillow)
+# Install system-level dependencies: Tesseract OCR, PostgreSQL client
+# libraries, plus build tools needed to compile some Python packages
 RUN apt-get update && apt-get install -y \
     tesseract-ocr \
     build-essential \
     pkg-config \
     libjpeg-dev \
     zlib1g-dev \
+    libpq-dev \
     && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
