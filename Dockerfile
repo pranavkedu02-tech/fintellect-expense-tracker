@@ -1,5 +1,5 @@
-﻿FROM python:3.12-slim
-
+FROM python:3.12-slim
+ENV PYTHONUNBUFFERED=1
 # Install system-level dependencies: Tesseract OCR, PostgreSQL client
 # libraries, plus build tools needed to compile some Python packages
 RUN apt-get update && apt-get install -y \
