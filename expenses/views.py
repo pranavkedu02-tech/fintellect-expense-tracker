@@ -32,6 +32,8 @@ from .forms import RegisterForm, ExpenseForm, EditProfileForm, ReceiptUploadForm
 from .ocr import extract_text_from_image, guess_amount
 from .ml_classifier import predict_category, evaluate_model_accuracy
 from .db import expenses_collection, profiles_collection, users_collection, monthly_summaries_collection
+from .forms import RegisterForm, ExpenseForm, EditProfileForm, ReceiptUploadForm, BudgetForm, SplitExpenseForm, ReminderForm
+from .db import expenses_collection, profiles_collection, users_collection, monthly_summaries_collection, split_requests_collection, reminders_collection
 
 def home_view(request):
     return render(request, "home.html")
@@ -893,3 +895,50 @@ def get_pending_split_count(user_id):
         "to_user_id": user_id,
         "status": "pending",
     })
+
+
+
+@login_required
+def create_reminder_view(request):
+    if request.method == "POST":
+        form = ReminderForm(request.POST)
+        if form.is_valid():
+            reminders_collection.insert_one({
+                "user_id": str(request.user.id),
+                "title": form.cleaned_data["title"],
+                "amount": float(form.cleaned_data["amount"]),
+                "reminder_date": str(form.cleaned_data["reminder_date"]),
+                "notes": form.cleaned_data["notes"],
+                "sent": False,
+                "created_at": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+            })
+            messages.success(request, "Reminder created!")
+            return redirect("reminders_list")
+    else:
+        form = ReminderForm()
+
+    return render(request, "create_reminder.html", {"form": form})
+
+
+@login_required
+def reminders_list_view(request):
+    user_id = str(request.user.id)
+    reminders = list(reminders_collection.find({"user_id": user_id}).sort("reminder_date", 1))
+    for r in reminders:
+        r["id"] = str(r["_id"])
+
+    return render(request, "reminders_list.html", {"reminders": reminders})
+
+
+@login_required
+def delete_reminder_view(request, reminder_id):
+    reminder = reminders_collection.find_one({"_id": ObjectId(reminder_id)})
+    if not reminder or reminder["user_id"] != str(request.user.id):
+        messages.error(request, "This reminder doesn't belong to you.")
+        return redirect("reminders_list")
+
+    if request.method == "POST":
+        reminders_collection.delete_one({"_id": ObjectId(reminder_id)})
+        messages.success(request, "Reminder deleted.")
+
+    return redirect("reminders_list")

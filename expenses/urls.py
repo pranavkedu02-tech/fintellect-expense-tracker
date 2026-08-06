@@ -46,4 +46,7 @@ urlpatterns = [
     path("split-requests/", views.split_requests_view, name="split_requests"),
     path("split-requests/<str:request_id>/<str:action>/", views.respond_split_view, name="respond_split"),
     path("api/search-users/", views.search_users_api, name="search_users_api"),
+    path("reminders/", views.reminders_list_view, name="reminders_list"),
+    path("reminders/create/", views.create_reminder_view, name="create_reminder"),
+    path("reminders/<str:reminder_id>/delete/", views.delete_reminder_view, name="delete_reminder"),
 ]

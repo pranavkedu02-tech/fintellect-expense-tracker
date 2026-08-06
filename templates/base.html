@@ -42,6 +42,9 @@
             <a href="{% url 'recurring_expenses' %}" class="menu-item{% if request.path == '/recurring/' %} active{% endif %}">
                 <span class="menu-item-icon">🔁</span> Recurring
             </a>
+            <a href="{% url 'reminders_list' %}" class="menu-item{% if '/reminders/' in request.path %} active{% endif %}">
+            <span class="menu-item-icon">⏰</span> Reminders
+            </a>
             <a href="{% url 'monthly_history' %}" class="menu-item{% if '/monthly-history/' in request.path %} active{% endif %}">
                 <span class="menu-item-icon">📅</span> Monthly History
             </a>

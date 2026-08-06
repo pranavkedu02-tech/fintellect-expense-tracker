@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block title %}New Reminder — Fintellect{% endblock %}
+
+{% block content %}
+    <h1>⏰ New Expense Reminder</h1>
+    <p class="text-dim">Get an email when it's time to pay.</p>
+
+    <div class="form-card">
+        <form method="POST">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button type="submit" class="btn">Create Reminder</button>
+        </form>
+        <p><a href="{% url 'reminders_list' %}">Back to Reminders</a></p>
+    </div>
+{% endblock %}

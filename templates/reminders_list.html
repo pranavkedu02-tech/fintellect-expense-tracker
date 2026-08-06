@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% block title %}Reminders — Fintellect{% endblock %}
+
+{% block content %}
+    <div class="section-head">
+        <h1>⏰ Expense Reminders</h1>
+        <a href="{% url 'create_reminder' %}" class="btn">+ New Reminder</a>
+    </div>
+
+    {% if reminders %}
+        {% for r in reminders %}
+        <div class="receipt-row">
+            <div>
+                <div class="receipt-title">{{ r.title }}</div>
+                <div class="text-dim" style="font-size: 0.85rem;">
+                    ₹{{ r.amount }} due on <strong>{{ r.reminder_date }}</strong>
+                    {% if r.notes %} · {{ r.notes }}{% endif %}
+                    {% if r.sent %} · <span class="badge">✓ Email sent</span>{% endif %}
+                </div>
+            </div>
+            <form method="POST" action="{% url 'delete_reminder' r.id %}">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-outline btn-sm">Delete</button>
+            </form>
+        </div>
+        {% endfor %}
+    {% else %}
+        <div class="empty-state">
+            <p>No reminders yet.</p>
+            <a href="{% url 'create_reminder' %}" class="btn btn-sm">Create one</a>
+        </div>
+    {% endif %}
+{% endblock %}

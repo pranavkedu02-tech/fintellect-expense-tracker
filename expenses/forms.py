@@ -78,3 +78,16 @@ class SplitExpenseForm(forms.Form):
         ("Other", "Other"),
     ])
     date = forms.DateField(widget=forms.DateInput(attrs={"type": "date"}))
+
+
+class ReminderForm(forms.Form):
+    title = forms.CharField(max_length=100, label="What's this reminder for?")
+    amount = forms.DecimalField(max_digits=10, decimal_places=2, min_value=0.01, label="Expected Amount (₹)")
+    reminder_date = forms.DateField(
+        widget=forms.DateInput(attrs={"type": "date"}),
+        label="Remind me on"
+    )
+    notes = forms.CharField(
+        required=False,
+        widget=forms.Textarea(attrs={"rows": 2, "placeholder": "Optional notes..."})
+    )
